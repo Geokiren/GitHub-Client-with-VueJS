@@ -4,7 +4,15 @@
         <div class="avatar">
           <img :src="user.avatar_url" alt="User Avatar" />
         </div>
-        <div class="name">{{ user.login.toUpperCase() }}</div>
+        <div v-if="user.details" class="details">
+            <div class="name detail-item">Name: {{ user.details && user.details.name || '' }}</div>
+            <div class="login-name detail-item">Login Name: {{ user.details.login }}</div>
+            <div class="location detail-item">Location: {{ user.details.location }}</div>
+            <div class="public-repos detail-item">Public Repos: {{ user.details.public_repos }}</div>
+            <div class="public-gists detail-item">Public Gists: {{ user.details.public_gists }}</div>
+            <div class="followers detail-item">Followers: {{ user.details.followers }}</div>
+            <div class="following detail-item">following: {{ user.details.following }}</div>
+        </div>
       </div>
     </div>
 </template>
@@ -36,26 +44,32 @@ export default {
       }
     },
     methods: {
-        getUsers(page) {
-            if(!page) {
-                page = 1;
-            }
-            console.log(page)
+        async getUsers(page) {
             this.isLoading = true;
-            fetch(
-                `https://api.github.com/search/users?q=language:javascript+type:user&sort=followers&order=desc&page=${page}&per_page=10`
-            )
-                .then(response => {
-                    if (response.ok) {
-                        return response.json();
-                    }
-                })
-                .then(data => {
-                    console.log(data);
+
+            try {
+                const res = await fetch(`https://api.github.com/search/users?q=language:javascript+type:user&sort=followers&order=desc&page=${page}&per_page=10`);
+                const data = await res.json();
+                
+                if(data && data.items) {
+                    data.items.forEach(item => {
+                        this.getUser(item.login).then(user => {
+                            item.details = user;
+                        })
+                    })
                     this.users = data && data.items || [];
-                }).finally(() => {
-                    this.isLoading = false;
-                })
+                    console.log('users: ', this.users)
+            }
+            } catch(er) {
+                console.log(er)
+            }
+            
+            this.isLoading = false;
+        },
+        async getUser(id) {
+            const res = await fetch(`https://api.github.com/users/${id}`);
+            const data = await res.json();
+            return data;
         }
     }
 }
@@ -71,20 +85,36 @@ export default {
             padding: 1rem;
             margin: 1rem auto;
             display: flex;
-            align-items: center;
+            // align-items: center;
             width: 50%;
             background-color: #393b51;
             color: white;
+            max-height: 140px;
 
             .avatar {
+                margin-right: 20px;
+
             img {
                 width: 100px;
             }
             }
 
-            .name {
-            letter-spacing: 4px;
+            .details {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-start;
+                flex-wrap: wrap;
+
+                .detail-item {
+                    letter-spacing: 4px;
+                    margin: 4px 34px;
+                    color: #42b983;
+                    font-size: 22px;
+                }
+
             }
+
+            
         }
 
         .user:hover {
