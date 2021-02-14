@@ -6,6 +6,7 @@
 
 <style lang="scss" scoped>
   #nav {
+    z-index: 100;
     position: fixed;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
     padding: 30px;
