@@ -1,12 +1,16 @@
 <template>
   <div id="main-content">
-    <button id="previous" class="pagination" :class="usersPage === 1 ? 'disabled' : ''" :disabled="usersPage === 1" @click="usersPage--">
+    <!-- <button id="previous" class="pagination" :class="usersPage === 1 ? 'disabled' : ''" :disabled="usersPage === 1" @click="usersPage--">
         <div class="arrow">&#60;</div>
-    </button>
+    </button> -->
     <users :page="usersPage"></users>
-    <button id="next" class="pagination" @click="usersPage++">
+    <div id="pagination-container">
+      <button id="previous" class="pagination" @click="usersPage--">Previous</button>
+    <button id="next" class="pagination" @click="usersPage++">Next</button>
+    </div>
+    <!-- <button id="next" class="pagination" @click="usersPage++">
         <div class="arrow">&#62;</div>
-    </button>
+    </button> -->
   </div>
 </template>
 
@@ -28,37 +32,47 @@
   #main-content {
     padding: 20px;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     margin-top: 70px;
   }
 
-  .pagination {
-    position: fixed;
-    top: 50%;
-    font-size: 300px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
-    border: 0;
-    border-radius: 10px;
-    color: #42b983;
-    background-color: #323347;
-    cursor: pointer;
-    outline: none;
-}
+  #pagination-container {
+    margin: 2rem 1rem;
 
-.pagination.disabled {
-  pointer-events: none;
-  opacity: 0.4;
-}
+    .pagination {
+      // position: fixed;
+      // top: 50%;
+      width: 150px;
+      padding: 10px;
+      margin: 0 20px;
+      font-size: 30px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+      border: 0;
+      border-radius: 10px;
+      color: #42b983;
+      background-color: #323347;
+      cursor: pointer;
+      outline: none;
+    }
 
-.pagination:hover {
-  transform: scale(1.01);
-}
+    .pagination.disabled {
+      pointer-events: none;
+      opacity: 0.4;
+    }
+
+    .pagination:hover {
+      transform: scale(1.01);
+    }
+  }
+
+  
 
 #previous {
-  left: 300px;
+  // left: 300px;
 }
 
 #next {
-  right: 300px;
+  // right: 300px;
 }
 </style>

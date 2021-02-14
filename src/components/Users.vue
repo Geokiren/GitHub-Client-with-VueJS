@@ -4,14 +4,14 @@
         <div class="avatar">
           <img :src="user.avatar_url" alt="User Avatar" />
         </div>
-        <div v-if="user.details" class="details">
-            <div class="name detail-item">Name: {{ user.details && user.details.name || '' }}</div>
-            <div class="login-name detail-item">Login Name: {{ user.details.login }}</div>
-            <div class="location detail-item">Location: {{ user.details.location }}</div>
-            <div class="public-repos detail-item">Public Repos: {{ user.details.public_repos }}</div>
-            <div class="public-gists detail-item">Public Gists: {{ user.details.public_gists }}</div>
+        <div class="details">
+            <div class="name detail-item">{{ user.details.name }}</div>
+            <div class="login-name detail-item">Username: {{ user.details.login }}</div>
+            <div class="location detail-item">Location: {{ user.details.location || 'N/A' }}</div>
+            <div class="public-repos detail-item">Repos: {{ user.details.public_repos }}</div>
+            <div class="public-gists detail-item">Gists: {{ user.details.public_gists }}</div>
             <div class="followers detail-item">Followers: {{ user.details.followers }}</div>
-            <div class="following detail-item">following: {{ user.details.following }}</div>
+            <div class="following detail-item">Following: {{ user.details.following }}</div>
         </div>
       </div>
     </div>
@@ -19,7 +19,6 @@
 
 <script>
 export default {
-    emits: ['change-page'],
     props: {
         page: {
             type: Number,
@@ -50,26 +49,31 @@ export default {
             try {
                 const res = await fetch(`https://api.github.com/search/users?q=language:javascript+type:user&sort=followers&order=desc&page=${page}&per_page=10`);
                 const data = await res.json();
+                console.log(data)
+                this.users = data && data.items || [];
                 
-                if(data && data.items) {
-                    data.items.forEach(item => {
-                        this.getUser(item.login).then(user => {
+                if(this.users) {
+                    this.users.forEach(item => {
+                        this.getUser(item.url).then(user => {
                             item.details = user;
                         })
                     })
-                    this.users = data && data.items || [];
-                    console.log('users: ', this.users)
-            }
+                    this.isLoading = false;
+                }
             } catch(er) {
                 console.log(er)
             }
             
-            this.isLoading = false;
+            
         },
-        async getUser(id) {
-            const res = await fetch(`https://api.github.com/users/${id}`);
-            const data = await res.json();
-            return data;
+        async getUser(url) {
+            try {
+                const res = await fetch(url);
+                const data = await res.json();
+                return data;
+            } catch(er) {
+                console.log(er)
+            }
         }
     }
 }
@@ -78,47 +82,63 @@ export default {
 <style lang="scss" scoped>
     #user-list {
         width: 100%;
+        margin: 0 auto;
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
 
         .user {
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
             border-radius: 10px;
-            padding: 1rem;
-            margin: 1rem auto;
+            // padding: 1rem;
+            margin: 1rem;
             display: flex;
-            // align-items: center;
-            width: 50%;
+            flex-direction: column;
+            // justify-content: center;
+            align-items: center;
+            // width: 20%;
             background-color: #393b51;
             color: white;
-            max-height: 140px;
+            // max-height: 140px;
 
             .avatar {
-                margin-right: 20px;
+                margin-bottom: 10px;
 
-            img {
-                width: 100px;
-            }
+                img {
+                    width: 400px;
+                }
             }
 
             .details {
+                width: 100%;
+                background-color: #393b51;
                 display: flex;
                 flex-direction: column;
-                align-items: flex-start;
+                align-items: center;
+                // justify-content: center;
                 flex-wrap: wrap;
+                max-width: 341px;
+                margin: 0 0 10px 0;
+
+                .name.detail-item {
+                    font-size: 20px;
+                    border-bottom: 2px solid white;
+                    margin: 1px 0 5px 0;
+                }
 
                 .detail-item {
                     letter-spacing: 4px;
-                    margin: 4px 34px;
-                    color: #42b983;
-                    font-size: 22px;
+                    font-size: 14px;
+                    padding: 6px 0;
+                    width: 90%;
+
                 }
 
             }
-
-            
         }
 
         .user:hover {
-            transform: scale(1.01);
+            transform: scale(1.05);
         }
     }
 </style>
