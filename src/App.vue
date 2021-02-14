@@ -1,6 +1,7 @@
 <template>
   <nav-layout></nav-layout>
   <main-content></main-content>
+  
 </template>
 
 <script>

@@ -1,6 +1,6 @@
 <template>
     <div v-if="!isLoading" id="user-list">
-      <div class="user" v-for="(user, index) in users" :key="user.id">
+      <div class="user" v-for="(user, index) in users" :key="user.id" @click="setRepoUsername(user.login, user.details.name)">
         <div class="avatar">
           <img :src="user.avatar_url" alt="User Avatar" />
         </div>
@@ -15,10 +15,20 @@
         </div>
       </div>
     </div>
+    <user-repos 
+        v-if="showRepos"
+        :username="repoInfo.username"
+        :name="repoInfo.name"
+        @close-repos="showRepos = false">
+    </user-repos>
 </template>
 
 <script>
+import UserRepos from './UserRepos.vue';
 export default {
+    components: {
+        UserRepos
+    },
     props: {
         page: {
             type: Number,
@@ -29,6 +39,8 @@ export default {
     data() {
         return {
             users: [],
+            repoInfo: {},
+            showRepos: false,
             isLoading: false
         }
     },
@@ -49,7 +61,6 @@ export default {
             try {
                 const res = await fetch(`https://api.github.com/search/users?q=language:javascript+type:user&sort=followers&order=desc&page=${page}&per_page=10`);
                 const data = await res.json();
-                console.log(data)
                 this.users = data && data.items || [];
                 
                 if(this.users) {
@@ -74,6 +85,13 @@ export default {
             } catch(er) {
                 console.log(er)
             }
+        },
+        setRepoUsername(username, name) {
+            this.repoInfo = {
+                username,
+                name
+            }
+            this.showRepos = true;
         }
     }
 }
@@ -90,21 +108,19 @@ export default {
         .user {
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
             border-radius: 10px;
-            // padding: 1rem;
             margin: 1rem;
             display: flex;
             flex-direction: column;
-            // justify-content: center;
             align-items: center;
-            // width: 20%;
             background-color: #393b51;
             color: white;
-            // max-height: 140px;
+            cursor: pointer;
 
             .avatar {
                 margin-bottom: 10px;
 
                 img {
+                    border-radius: 10px 10px 0 0;
                     width: 400px;
                 }
             }
