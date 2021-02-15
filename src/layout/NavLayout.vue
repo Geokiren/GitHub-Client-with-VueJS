@@ -13,6 +13,7 @@
     width: 100%;
     background-color: #1f202d;
     top: 0;
+    left: 0;
 
     a {
       font-weight: bold;

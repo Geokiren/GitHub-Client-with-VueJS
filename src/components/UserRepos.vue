@@ -1,10 +1,26 @@
 <template>
-    <div id="repos">
-        <h1 id="title">{{ name }}'s Repos</h1>
-        <div id="close" @click="close">&#10006;</div>
-        <div class="repos-list" v-for="(repo, index) in repos">
-            <div class="full-name">{{ repo.full_name }}</div>
-            <div class="description">{{ repo.description }}</div>
+    <div id="repos-outer">
+        <div id="repos">
+            <h1 id="title">{{ name }}'s Repos</h1>
+            <div id="close" @click="close">&#10006;</div>
+            <div v-if="repos" id="repos-container">
+                <div class="repos-list" v-for="(repo, index) in repos">
+                    <h3 class="full-name repo-item">{{ repo.full_name.split('/')[1].toUpperCase() }}</h3>
+                    <div class="repo-info">
+                        <div class="license repo-item">License: {{ repo.license.name }}</div>
+                        <div class="stars repo-item">Stars: {{ repo.stargazers_count }}</div>
+                        <div class="watchers repo-item">Watchers: {{ repo.watchers }}</div>
+                        <div class="forks repo-item">Forks: {{ repo.forks }}</div>
+                    </div>
+                    <div class="divider"></div>
+                    <h4>Description</h4>
+                    <div class="description repo-item">{{ repo.description }}</div>
+                </div>
+            </div>
+            <div id="pagination-container">
+                <button id="previous" class="pagination" :class="page <= 1 ? 'disabled' : ''" @click="page--" :disabled="page <= 1">Previous</button>
+                <button id="next" class="pagination" @click="page++">Next</button>
+            </div>
         </div>
     </div>
 </template>
@@ -24,23 +40,31 @@ export default {
     },
     data() {
         return {
-            repos: []
+            repos: [],
+            page: 1
         }
     },
     mounted() {
-        this.getRepos(this.username);
+        this.getRepos(this.username, this.page);
+    },
+    watch: {
+      page(newVal, oldVal) {
+        if(newVal) {
+            this.getRepos(this.username, newVal);
+        }
+      },
     },
     methods: {
         close() {
-            console.log('in here')
             this.$emit('close-repos');
         },
-        async getRepos(username) {
+        async getRepos(username, page) {
             try {
-                const res = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&type=owner&direction=desc&page=1&per_page=10`);
+                const res = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&type=owner&direction=desc&page=${page}&per_page=10`);
+                console.log(res)
                 const data = await res.json();
+                this.repos = data || [];
                 console.log(data)
-                this.repos = data;
             } catch(er) {
                 console.log(er)
             }
@@ -50,10 +74,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+    $repo-colors: #83984d, #423f3f, #ba2234, #336b8b, #f0b51f;
+
     #repos {
-        position: absolute;
-        top: 7.5%;
-        left: 7.5%;
+        position: fixed;
+        top: 53%;
+        left: 50%;
         width: 85%;
         height: 90%;
         margin: auto;
@@ -65,10 +91,13 @@ export default {
         display: flex;
         flex-direction: column;
         align-items: center;
+        transform: translate(-50%, -50%);
+        overflow-y: auto;
+        overflow-x: hidden;
 
         #title {
             border-bottom: 2px solid white;
-            width: 80%;
+            width: 100%;
             padding: 10px;
         }
 
@@ -91,9 +120,104 @@ export default {
             transform: rotate(90deg);
         }
 
-        .repos-list {
-            border: 2px solid white;
-            margin: 1rem;
+        @media screen and (max-width: 1024px) {
+            #close {
+                font-size: 40px;
+                top: 0;
+                right: 10px;
+            }
+        }
+
+        #repos-container {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+
+            .repos-list {
+
+                background-color: #242533;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+                border-radius: 10px;
+                margin: 1rem;
+                padding: 1rem;
+                width: 360px;
+
+                .full-name.repo-item {
+                    border-bottom: 1px solid white;
+                    padding: 6px;
+                    margin: 0 0 10px 0;
+                    letter-spacing: 4px;
+                }
+
+                .repo-info {
+                    margin: 20px 0;
+
+                    .repo-item {
+                        margin-bottom: 8px;
+                        letter-spacing: 2px;
+                    }
+                }
+
+                h4 {
+                    margin: 10px 0;
+                }
+
+                .divider {
+                    border-bottom: 1px solid white;
+                }
+            }
+
+            @media screen and (max-width: 460px) {
+                .repos-list {
+                    width: 280px;
+                }
+            }
+        }
+
+        #pagination-container {
+            margin: 2rem 1rem;
+
+            .pagination {
+            // position: fixed;
+            // top: 50%;
+            width: 150px;
+            padding: 10px;
+            margin: 0 20px;
+            font-size: 30px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+            border: 0;
+            border-radius: 10px;
+            color: #42b983;
+            background-color: #323347;
+            cursor: pointer;
+            outline: none;
+            }
+
+            .pagination.disabled {
+            pointer-events: none;
+            opacity: 0.4;
+            }
+
+            .pagination:hover {
+            transform: scale(1.01);
+            }
+
+            @media screen and (max-width: 600px) {
+                .pagination {
+                    width: 80px;
+                    font-size: 16px;
+                }
+            }
+        }
+    }
+
+    @media screen and (max-width: 1024px) {
+        #repos {
+            width: 95%;
+            height: 90%;
+            padding: 0 30px 0 30px;
         }
     }
 </style>

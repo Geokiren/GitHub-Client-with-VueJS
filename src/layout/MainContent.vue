@@ -5,8 +5,8 @@
     </button> -->
     <users :page="usersPage"></users>
     <div id="pagination-container">
-      <button id="previous" class="pagination" @click="usersPage--">Previous</button>
-    <button id="next" class="pagination" @click="usersPage++">Next</button>
+      <button id="previous" class="pagination" :class="usersPage <= 1 ? 'disabled' : ''" @click="usersPage--" :disabled="usersPage <= 1">Previous</button>
+      <button id="next" class="pagination" @click="usersPage++">Next</button>
     </div>
     <!-- <button id="next" class="pagination" @click="usersPage++">
         <div class="arrow">&#62;</div>
@@ -64,6 +64,13 @@
     .pagination:hover {
       transform: scale(1.01);
     }
+
+    @media screen and (max-width: 600px) {
+      .pagination {
+          width: 80px;
+          font-size: 16px;
+      }
+            }
   }
 
   

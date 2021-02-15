@@ -1,5 +1,5 @@
 <template>
-    <div v-if="!isLoading" id="user-list">
+    <div v-if="!isLoading && !showRepos" id="user-list">
       <div class="user" v-for="(user, index) in users" :key="user.id" @click="setRepoUsername(user.login, user.details.name)">
         <div class="avatar">
           <img :src="user.avatar_url" alt="User Avatar" />
@@ -47,12 +47,20 @@ export default {
     mounted() {
     this.getUsers(1);
   },
-  watch: {
-      page(newVal, oldVal) {
-        if(newVal) {
-            this.getUsers(newVal);
+    watch: {
+        page(newVal, oldVal) {
+            if(newVal) {
+                this.getUsers(newVal);
+            }
+        },
+        showRepos: function() {
+        if(this.showRepos){
+            document.documentElement.style.overflow = 'hidden'
+            return
         }
-      }
+
+        document.documentElement.style.overflow = 'auto'
+        }
     },
     methods: {
         async getUsers(page) {
@@ -61,6 +69,7 @@ export default {
             try {
                 const res = await fetch(`https://api.github.com/search/users?q=language:javascript+type:user&sort=followers&order=desc&page=${page}&per_page=10`);
                 const data = await res.json();
+                console.log(res)
                 this.users = data && data.items || [];
                 
                 if(this.users) {
@@ -115,6 +124,8 @@ export default {
             background-color: #393b51;
             color: white;
             cursor: pointer;
+            -webkit-transition: -webkit-transform .3s ease-in-out;
+            transition: transform .3s ease-in-out;
 
             .avatar {
                 margin-bottom: 10px;
@@ -122,6 +133,17 @@ export default {
                 img {
                     border-radius: 10px 10px 0 0;
                     width: 400px;
+                }
+
+                @media screen and (max-width: 460px) {
+                    img {
+                        width: 340px;
+                    }
+                }
+                @media screen and (min-width: 461px) and (max-width: 1024px) {
+                    img {
+                        width: 300px;
+                    }
                 }
             }
 
