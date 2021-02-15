@@ -1,15 +1,13 @@
 <template>
   <nav-layout></nav-layout>
-  <main-content></main-content>
+  <router-view />
 </template>
 
 <script>
 import NavLayout from "./layout/NavLayout.vue";
-import MainContent from "./layout/MainContent.vue";
 export default {
   components: {
-    NavLayout,
-    MainContent
+    NavLayout
   }
 };
 </script>
