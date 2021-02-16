@@ -1,8 +1,8 @@
 <template>
-    <div v-if="!isLoading && !showRepos" id="user-list">
-      <div class="user" v-for="(user, index) in users" :key="user.id" @click="setRepoUsername(user.login, user.details.name)">
+    <div class="user" v-if="user" @click="setRepoUsername(user.login, user.details.name)">
+        <div class="follow">&#10084;</div>
         <div class="avatar">
-          <img :src="user.avatar_url" alt="User Avatar" />
+            <img :src="user.avatar_url" alt="User Avatar" />
         </div>
         <div class="details">
             <div class="name detail-item">{{ user.details.name }}</div>
@@ -13,7 +13,6 @@
             <div class="followers detail-item">Followers: {{ user.details.followers }}</div>
             <div class="following detail-item">Following: {{ user.details.following }}</div>
         </div>
-      </div>
     </div>
     <user-repos 
         v-if="showRepos"
@@ -24,95 +23,38 @@
 </template>
 
 <script>
-import UserRepos from './UserRepos.vue';
-export default {
-    components: {
-        UserRepos
-    },
-    props: {
-        page: {
-            type: Number,
-            required: true,
-            default: 1
-        }
-    },
-    data() {
-        return {
-            users: [],
-            repoInfo: {},
-            showRepos: false,
-            isLoading: false
-        }
-    },
-    mounted() {
-    this.getUsers(1);
-  },
-    watch: {
-        page(newVal, oldVal) {
-            if(newVal) {
-                this.getUsers(newVal);
+    import UserRepos from '../components/UserRepos.vue';
+
+    export default {
+        components: {
+            UserRepos
+        },
+        props: {
+            user: {
+                type: Object,
+                required: true
             }
         },
-        showRepos: function() {
-        if(this.showRepos){
-            document.documentElement.style.overflow = 'hidden'
-            return
-        }
-
-        document.documentElement.style.overflow = 'auto'
-        }
-    },
-    methods: {
-        async getUsers(page) {
-            this.isLoading = true;
-
-            try {
-                const res = await fetch(`https://api.github.com/search/users?q=language:javascript+type:user&sort=followers&order=desc&page=${page}&per_page=10`);
-                const data = await res.json();
-                console.log(res)
-                this.users = data && data.items || [];
-                
-                if(this.users) {
-                    this.users.forEach(item => {
-                        this.getUser(item.url).then(user => {
-                            item.details = user;
-                        })
-                    })
-                    this.isLoading = false;
+        data() {
+            return {
+                repoInfo: {},
+                showRepos: false
+            }
+        },
+        methods: {
+            setRepoUsername(username, name) {
+                this.repoInfo = {
+                    username,
+                    name
                 }
-            } catch(er) {
-                console.log(er)
+                this.showRepos = true;
             }
-            
-            
-        },
-        async getUser(url) {
-            try {
-                const res = await fetch(url);
-                const data = await res.json();
-                return data;
-            } catch(er) {
-                console.log(er)
-            }
-        },
-        setRepoUsername(username, name) {
-            this.repoInfo = {
-                username,
-                name
-            }
-            this.showRepos = true;
         }
     }
-}
 </script>
 
 <style lang="scss" scoped>
-    #user-list {
-        width: 100%;
-        margin: 0 auto;
-        display: flex;
-        flex-wrap: wrap;
-        justify-content: center;
+    
 
         .user {
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
@@ -125,7 +67,21 @@ export default {
             color: white;
             cursor: pointer;
             -webkit-transition: -webkit-transform .3s ease-in-out;
-            transition: transform .3s ease-in-out;
+            transition: all .3s ease-in-out;
+            position: relative;
+
+            .follow {
+                position: absolute;
+                bottom: 0;
+                right: 10px;
+                color: #ba2234;
+                font-size: 30px;
+                transition: all .8s ease-in-out;
+            }
+
+            .follow:hover {
+                transform: rotate(360deg);
+            }
 
             .avatar {
                 margin-bottom: 10px;
@@ -178,5 +134,4 @@ export default {
         .user:hover {
             transform: scale(1.05);
         }
-    }
 </style>
