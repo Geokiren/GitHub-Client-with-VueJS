@@ -1,12 +1,16 @@
 <template>
   <div class="home">
-    <div id="user-list">
-      <keep-alive>
-        <user v-for="(user, index) in users" :key="user.id" :user="user"></user>
-      </keep-alive>
+    <div id="user-list" v-if="!isLoading">
+        <user v-for="(user, index) in users" :key="user.id" :user="user" @user-repos="setRepos" v-if="!showRepos"></user>
     </div>
+    <user-repos 
+        v-if="showRepos"
+        :username="repoInfo.username"
+        :name="repoInfo.name"
+        @close-repos="showRepos = false">
+    </user-repos>
     <div id="pagination-container">
-      <button id="previous" class="pagination" @click="usersPage--">Previous</button>
+      <button id="previous" class="pagination" :class="usersPage === 1 ? 'disabled' : ''" @click="usersPage--" :disabled="usersPage === 1">Previous</button>
       <button id="next" class="pagination" @click="usersPage++">Next</button>
     </div>
   </div>
@@ -14,18 +18,27 @@
 
 <script>
 import User from "../components/User.vue";
+import UserRepos from '../components/UserRepos.vue';
 
 export default {
   name: 'Home',
   components: {
-    User
+    User,
+    UserRepos
   },
   data() {
       return {
         usersPage: 1,
         users: [],
         isLoading: false,
+        showRepos: false,
+        repoInfo: {},
       }
+  },
+  computed: {
+    selectedUsers() {
+      return this.$store.state.selectedUsers;
+    }
   },
   mounted() {
     this.getUsers(1);
@@ -37,45 +50,35 @@ export default {
         }
     },
     showRepos: function() {
-      if(this.showRepos){
-          document.documentElement.style.overflow = 'hidden'
-          return
-      }
+                if(this.showRepos){
+                    document.documentElement.style.overflow = 'hidden';
+                    return;
+                }
 
-      document.documentElement.style.overflow = 'auto'
-    }
+                document.documentElement.style.overflow = 'auto';
+            }
   },
   methods: {
+    findUserIndex(id) {
+        return this.selectedUsers.findIndex(selectedUser => selectedUser.id === id);
+    },
     async getUsers(page) {
         this.isLoading = true;
-
         try {
             const res = await fetch(`https://api.github.com/search/users?q=language:javascript+type:user&sort=followers&order=desc&page=${page}&per_page=10`);
-            const data = await res.json();
-            // console.log(res)
-            console.log(data)
-            this.users = data && data.items || [];
+            const { items } = await res.json();
+
+            this.users = items;
             
-            if(this.users) {
-                this.users.forEach(item => {
-                    this.getUser(item.url).then(user => {
-                        item.details = user;
-                    })
-                })
-                this.isLoading = false;
-            }
-        } catch(er) {
-            console.log(er)
-        } 
-    },
-    async getUser(url) {
-        try {
-            const res = await fetch(url);
-            const data = await res.json();
-            return data;
         } catch(er) {
             console.log(er)
         }
+        this.isLoading = false;
+    },
+    setRepos(repo) {
+      console.log('repos: ', repo);
+      this.repoInfo = repo;
+      this.showRepos = true;
     }
   }
 }

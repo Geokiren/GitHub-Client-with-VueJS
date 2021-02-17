@@ -1,33 +1,27 @@
 <template>
-    <div class="user" v-if="user" @click="setRepoUsername(user.login, user.details.name)">
-        <div class="follow">&#10084;</div>
+    <div class="user" @click="setRepoUsername(details.login, details.name)" v-if="!isLoading">
+        <div class="follow" @click.stop="unfollow(user)" v-if="user.selected">&#10084;</div>
+        <div class="follow" @click.stop="follow(user)" v-else>&#9825;</div>
         <div class="avatar">
             <img :src="user.avatar_url" alt="User Avatar" />
         </div>
         <div class="details">
-            <div class="name detail-item">{{ user.details.name }}</div>
-            <div class="login-name detail-item">Username: {{ user.details.login }}</div>
-            <div class="location detail-item">Location: {{ user.details.location || 'N/A' }}</div>
-            <div class="public-repos detail-item">Repos: {{ user.details.public_repos }}</div>
-            <div class="public-gists detail-item">Gists: {{ user.details.public_gists }}</div>
-            <div class="followers detail-item">Followers: {{ user.details.followers }}</div>
-            <div class="following detail-item">Following: {{ user.details.following }}</div>
+            <div class="name detail-item">{{ details.name }}</div>
+            <div class="login-name detail-item">Username: {{ details.login }}</div>
+            <div class="location detail-item">Location: {{ details.location || 'N/A' }}</div>
+            <div class="public-repos detail-item">Repos: {{ details.public_repos }}</div>
+            <div class="public-gists detail-item">Gists: {{ details.public_gists }}</div>
+            <div class="followers detail-item">Followers: {{ details.followers }}</div>
+            <div class="following detail-item">Following: {{ details.following }}</div>
         </div>
     </div>
-    <user-repos 
-        v-if="showRepos"
-        :username="repoInfo.username"
-        :name="repoInfo.name"
-        @close-repos="showRepos = false">
-    </user-repos>
 </template>
 
 <script>
-    import UserRepos from '../components/UserRepos.vue';
+    
 
     export default {
         components: {
-            UserRepos
         },
         props: {
             user: {
@@ -37,17 +31,59 @@
         },
         data() {
             return {
-                repoInfo: {},
-                showRepos: false
+                details: {},
+                isLoading: false
             }
         },
+        beforeMount() {
+            
+            
+        },
+        mounted() {
+            this.getUser(this.user.url);
+        },
+        computed: {
+            selectedUsers() {
+                return this.$store.state.selectedUsers;
+            }
+        },
+        watch: {
+            
+        },
         methods: {
+            async getUser(url) {
+                this.isLoading = true;
+                try {
+                    const res = await fetch(url);
+                    const data = await res.json();
+                    this.details = data || {};
+                } catch(er) {
+                    console.log(er)
+                }
+                this.isLoading = false;
+            },
+            findUserIndex(id) {
+                return this.selectedUsers.findIndex(selectedUser => selectedUser.id === id);
+            },
             setRepoUsername(username, name) {
                 this.repoInfo = {
                     username,
                     name
                 }
-                this.showRepos = true;
+                this.$emit('user-repos', this.repoInfo);
+            },
+            unfollow(user) {
+                if (user.selected) {
+                    const index = this.findUserIndex(user.id);
+                    user.selected = false;
+                    this.$store.commit('unfollowUser', index);
+                }
+            },
+            follow(user) {
+                if (!user.selected) {
+                    this.$store.commit('followUser', user);
+                    user.selected = true;
+                }
             }
         }
     }

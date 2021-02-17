@@ -4,10 +4,10 @@
             <h1 id="title">{{ name }}'s Repos</h1>
             <div id="close" @click="close">&#10006;</div>
             <div v-if="repos" id="repos-container">
-                <div class="repos-list" v-for="(repo, index) in repos">
+                <div class="repos-list" v-for="(repo, index) in repos" v-if="!isLoading">
                     <h3 class="full-name repo-item">{{ repo.full_name.split('/')[1].toUpperCase() }}</h3>
                     <div class="repo-info">
-                        <div class="license repo-item">License: {{ repo.license.name }}</div>
+                        <div class="license repo-item" v-if="repo.license">License: {{ repo.license.name || 'N/A' }}</div>
                         <div class="stars repo-item">Stars: {{ repo.stargazers_count }}</div>
                         <div class="watchers repo-item">Watchers: {{ repo.watchers }}</div>
                         <div class="forks repo-item">Forks: {{ repo.forks }}</div>
@@ -41,7 +41,8 @@ export default {
     data() {
         return {
             repos: [],
-            page: 1
+            page: 1,
+            isLoading: false
         }
     },
     mounted() {
@@ -59,15 +60,15 @@ export default {
             this.$emit('close-repos');
         },
         async getRepos(username, page) {
+            this.isLoading = true;
             try {
                 const res = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&type=owner&direction=desc&page=${page}&per_page=10`);
-                console.log(res)
                 const data = await res.json();
                 this.repos = data || [];
-                console.log(data)
             } catch(er) {
                 console.log(er)
             }
+            this.isLoading = false;
         }
     }
 }
