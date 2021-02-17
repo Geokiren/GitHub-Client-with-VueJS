@@ -9,23 +9,27 @@
         :name="repoInfo.name"
         @close-repos="showRepos = false">
     </user-repos>
-    <div id="pagination-container" v-if="!showRepos">
+    <!-- <div id="pagination-container" v-if="!showRepos">
       <button id="previous" class="pagination" :class="usersPage === 1 ? 'disabled' : ''" @click="usersPage--" :disabled="usersPage === 1">Previous</button>
       <div id="page">{{ usersPage }}</div>
       <button id="next" class="pagination" @click="usersPage++">Next</button>
-    </div>
+    </div> -->
   </div>
+  <observer @intersect="intersected" />
 </template>
 
 <script>
+import { onMounted } from 'vue';
 import User from "../components/User.vue";
 import UserRepos from '../components/UserRepos.vue';
+import Observer from '../components/Observer.vue';
 
 export default {
   name: 'Home',
   components: {
     User,
-    UserRepos
+    UserRepos,
+    Observer
   },
   data() {
       return {
@@ -34,12 +38,15 @@ export default {
         isLoading: false,
         showRepos: false,
         repoInfo: {},
+        renderObserver: false
       }
   },
   computed: {
     selectedUsers() {
       return this.$store.state.selectedUsers;
     }
+  },
+  created() {
   },
   mounted() {
     this.getUsers(1);
@@ -51,34 +58,40 @@ export default {
         }
     },
     showRepos: function() {
-                if(this.showRepos){
-                    document.documentElement.style.overflow = 'hidden';
-                    return;
-                }
+      if(this.showRepos){
+          document.documentElement.style.overflow = 'hidden';
+          return;
+      }
 
-                document.documentElement.style.overflow = 'auto';
-            }
+      document.documentElement.style.overflow = 'auto';
+    }
   },
   methods: {
     findUserIndex(id) {
         return this.selectedUsers.findIndex(selectedUser => selectedUser.id === id);
     },
     async getUsers(page) {
-        this.isLoading = true;
+      // this.renderObserver = false;
+        // this.isLoading = true;
         try {
             const res = await fetch(`https://api.github.com/search/users?q=language:javascript+type:user&sort=followers&order=desc&page=${page}&per_page=10`);
             const { items } = await res.json();
-
-            this.users = items;
-            
+            this.users.push(...items || []);            
         } catch(er) {
             console.log(er)
         }
-        this.isLoading = false;
+        // setTimeout(() => {
+        //   this.renderObserver = true;
+        // }, 300);
+        
+        // this.isLoading = false;
     },
     setRepos(repo) {
       this.repoInfo = repo;
       this.showRepos = true;
+    },
+    intersected() {
+      this.usersPage++;
     }
   }
 }
@@ -155,5 +168,9 @@ export default {
         padding: 8px;
       }
     }
+  }
+
+  #vov {
+    height: 10px;
   }
 </style>

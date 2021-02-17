@@ -1,7 +1,7 @@
 <template>
     <div class="user" @click="setRepoUsername(details.login, details.name)" v-if="!isLoading">
-        <div class="follow" @click.stop="unfollow(user)" v-if="user.selected">&#10084;</div>
-        <div class="follow" @click.stop="follow(user)" v-else>&#9825;</div>
+        <div class="following-user" @click.stop="selectUser(user)" v-if="user.selected">&#10084;</div>
+        <div class="follow" @click.stop="selectUser(user)" v-else>&#9825;</div>
         <div class="avatar">
             <img :src="user.avatar_url" alt="User Avatar" />
         </div>
@@ -32,7 +32,8 @@
         data() {
             return {
                 details: {},
-                isLoading: false
+                isLoading: false,
+                userIndex: null
             }
         },
         beforeMount() {
@@ -41,6 +42,12 @@
         },
         mounted() {
             this.getUser(this.user.url);
+            const index = this.findUserIndex(this.user.id);
+            if (index > -1) {
+                this.user.selected = true;
+            } else {
+              this.user.selected = false;
+            }
         },
         computed: {
             selectedUsers() {
@@ -72,19 +79,16 @@
                 }
                 this.$emit('user-repos', this.repoInfo);
             },
-            unfollow(user) {
-                if (user.selected) {
-                    const index = this.findUserIndex(user.id);
-                    user.selected = false;
-                    this.$store.commit('unfollowUser', index);
-                }
+            selectUser(user) {
+              const index = this.findUserIndex(this.user.id);
+              if (index > -1) {
+                this.user.selected = false;
+                this.$store.commit('removeUser', index);
+              } else {
+                this.user.selected = true;
+                this.$store.commit('addUser', user);
+              }
             },
-            follow(user) {
-                if (!user.selected) {
-                    this.$store.commit('followUser', user);
-                    user.selected = true;
-                }
-            }
         }
     }
 </script>
@@ -111,12 +115,25 @@
                 bottom: 0;
                 right: 10px;
                 color: #ba2234;
-                font-size: 30px;
+                font-size: 40px;
                 transition: all .8s ease-in-out;
             }
 
             .follow:hover {
-                transform: rotate(360deg);
+                transform: scale(1.1)
+            }
+
+            .following-user {
+              position: absolute;
+                bottom: 4px;
+                right: 9px;
+                color: #ba2234;
+                font-size: 30px;
+                transition: all .8s ease-in-out;
+            }
+
+            .following-user:hover {
+                transform: scale(1.1)
             }
 
             .avatar {
