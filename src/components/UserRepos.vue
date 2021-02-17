@@ -1,8 +1,9 @@
 <template>
     <div id="repos-outer">
         <div id="repos">
+          <div id="close" @click="close">&#10006;</div>
             <h1 id="title">{{ name }}'s Repos</h1>
-            <div id="close" @click="close">&#10006;</div>
+            
             <div v-if="repos" id="repos-container">
                 <div class="repos-list" v-for="(repo, index) in repos" v-if="!isLoading">
                     <h3 class="full-name repo-item">{{ repo.full_name.split('/')[1].toUpperCase() }}</h3>
@@ -19,6 +20,7 @@
             </div>
             <div id="pagination-container">
                 <button id="previous" class="pagination" :class="page <= 1 ? 'disabled' : ''" @click="page--" :disabled="page <= 1">Previous</button>
+                <div id="page">{{ page }}</div>
                 <button id="next" class="pagination" @click="page++">Next</button>
             </div>
         </div>
@@ -82,8 +84,8 @@ export default {
         top: 53%;
         left: 50%;
         width: 85%;
-        height: 90%;
-        margin: auto;
+        height: 85%;
+        margin:  20px auto;
         padding: 0 80px 80px 80px;
         z-index: 100;
         background-color: #393b51;
@@ -98,15 +100,16 @@ export default {
 
         #title {
             border-bottom: 2px solid white;
-            width: 100%;
-            padding: 10px;
+            width: 85%;
+            padding: 20px;
         }
 
         #close {
             position: absolute;
             width: 60px;
-            top: 5px;
-            right: 20px;
+            text-align: right;
+            top: 0;
+            right: 10px;
             color: #42b983;
             font-size: 60px;
             cursor: pointer;
@@ -123,9 +126,14 @@ export default {
 
         @media screen and (max-width: 1024px) {
             #close {
-                font-size: 40px;
-                top: 0;
-                right: 10px;
+                position: sticky;
+                width: 100%;
+                text-align: right;
+            }
+
+            #title {
+              padding: 0 10px 10px 10px;
+              margin: 0 20px 20px 20px;
             }
         }
 
@@ -134,7 +142,7 @@ export default {
             flex-wrap: wrap;
             align-items: center;
             justify-content: center;
-            height: 100%;
+            height: 108vh;
 
             .repos-list {
 
@@ -178,11 +186,14 @@ export default {
         }
 
         #pagination-container {
-            margin: 2rem 1rem;
+          margin: 2rem 1rem;
+          display: flex;
+          justify-content: center;
+          position: absolute;
+          bottom: 0;
+          z-index: 100;
 
             .pagination {
-            // position: fixed;
-            // top: 50%;
             width: 150px;
             padding: 10px;
             margin: 0 20px;
@@ -205,11 +216,27 @@ export default {
             transform: scale(1.01);
             }
 
-            @media screen and (max-width: 600px) {
+            #page {
+              box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+              background-color: #323347;
+              width: 50px;
+              color: #42b983;
+              font-size: 30px;
+              border-radius: 10px;
+              padding: 10px;
+            }
+
+            @media screen and (max-width: 1024px) {
+
+              
+
                 .pagination {
                     width: 80px;
                     font-size: 16px;
                 }
+              
+
+                
             }
         }
     }

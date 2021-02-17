@@ -9,8 +9,9 @@
         :name="repoInfo.name"
         @close-repos="showRepos = false">
     </user-repos>
-    <div id="pagination-container">
+    <div id="pagination-container" v-if="!showRepos">
       <button id="previous" class="pagination" :class="usersPage === 1 ? 'disabled' : ''" @click="usersPage--" :disabled="usersPage === 1">Previous</button>
+      <div id="page">{{ usersPage }}</div>
       <button id="next" class="pagination" @click="usersPage++">Next</button>
     </div>
   </div>
@@ -76,7 +77,6 @@ export default {
         this.isLoading = false;
     },
     setRepos(repo) {
-      console.log('repos: ', repo);
       this.repoInfo = repo;
       this.showRepos = true;
     }
@@ -91,6 +91,7 @@ export default {
     flex-direction: column;
     justify-content: center;
     margin-top: 70px;
+    position: relative;
   }
 
   #user-list {
@@ -103,18 +104,20 @@ export default {
 
   #pagination-container {
     margin: 2rem 1rem;
+    display: flex;
+    justify-content: center;
 
     .pagination {
       // position: fixed;
       // top: 50%;
+      color: #42b983;
+      font-size: 30px;
       width: 150px;
       padding: 10px;
       margin: 0 20px;
-      font-size: 30px;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
       border: 0;
       border-radius: 10px;
-      color: #42b983;
       background-color: #323347;
       cursor: pointer;
       outline: none;
@@ -128,12 +131,29 @@ export default {
     .pagination:hover {
       transform: scale(1.01);
     }
+    
+    #page {
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
+      background-color: #323347;
+      width: 50px;
+      color: #42b983;
+      font-size: 30px;
+      border-radius: 10px;
+      padding: 10px;
+    }
 
     @media screen and (max-width: 600px) {
       .pagination {
-          width: 80px;
-          font-size: 16px;
+          width: 120px;
+          font-size: 22px;
+          padding: 8px;
+          margin: 0 10px;
       }
-            }
+      #page {
+        width: 40px;
+        font-size: 22px;
+        padding: 8px;
+      }
+    }
   }
 </style>
