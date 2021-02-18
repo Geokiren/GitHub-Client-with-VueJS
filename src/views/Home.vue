@@ -15,7 +15,7 @@
       <button id="next" class="pagination" @click="usersPage++">Next</button>
     </div> -->
   </div>
-  <observer @intersect="intersected" />
+  <observer v-if="renderObserver && !showRepos" @intersect="intersected" />
 </template>
 
 <script>
@@ -71,7 +71,7 @@ export default {
         return this.selectedUsers.findIndex(selectedUser => selectedUser.id === id);
     },
     async getUsers(page) {
-      // this.renderObserver = false;
+      this.renderObserver = false;
         // this.isLoading = true;
         try {
             const res = await fetch(`https://api.github.com/search/users?q=language:javascript+type:user&sort=followers&order=desc&page=${page}&per_page=10`);
@@ -80,9 +80,9 @@ export default {
         } catch(er) {
             console.log(er)
         }
-        // setTimeout(() => {
-        //   this.renderObserver = true;
-        // }, 300);
+        setTimeout(() => {
+          this.renderObserver = true;
+        }, 300);
         
         // this.isLoading = false;
     },

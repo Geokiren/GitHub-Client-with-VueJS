@@ -58,20 +58,25 @@ export default {
       },
     },
     methods: {
-        close() {
-            this.$emit('close-repos');
-        },
-        async getRepos(username, page) {
-            this.isLoading = true;
-            try {
-                const res = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&type=owner&direction=desc&page=${page}&per_page=10`);
-                const data = await res.json();
-                this.repos = data || [];
-            } catch(er) {
-                console.log(er)
-            }
-            this.isLoading = false;
-        }
+      close() {
+          this.$emit('close-repos');
+      },
+      async getRepos(username, page) {
+          this.isLoading = true;
+          try {
+              const res = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&type=owner&direction=desc&page=${page}&per_page=10`);
+              const data = await res.json();
+              this.repos = data || [];
+          } catch(er) {
+              console.log(er)
+          }
+          this.isLoading = false;
+      },
+      todo: function(){
+        this.intervalId = setInterval(function(){
+          // apply code needed
+        }.bind(this), 30000);
+      }
     }
 }
 </script>

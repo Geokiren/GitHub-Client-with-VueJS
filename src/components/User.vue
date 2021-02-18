@@ -1,7 +1,7 @@
 <template>
     <div class="user" @click="setRepoUsername(details.login, details.name)" v-if="!isLoading">
-        <div class="following-user" @click.stop="selectUser(user)" v-if="user.selected">&#10084;</div>
-        <div class="follow" @click.stop="selectUser(user)" v-else>&#9825;</div>
+        <div class="following-user" @click.stop="selectUser(details)" v-if="user.selected">&#10084;</div>
+        <div class="follow" @click.stop="selectUser(details)" v-else>&#9825;</div>
         <div class="avatar">
             <img :src="user.avatar_url" alt="User Avatar" />
         </div>
@@ -42,7 +42,9 @@
         },
         mounted() {
             this.getUser(this.user.url);
+
             const index = this.findUserIndex(this.user.id);
+            console.log({index, name: this.user.login})
             if (index > -1) {
                 this.user.selected = true;
             } else {
@@ -94,8 +96,6 @@
 </script>
 
 <style lang="scss" scoped>
-    
-
         .user {
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.26);
             border-radius: 10px;
