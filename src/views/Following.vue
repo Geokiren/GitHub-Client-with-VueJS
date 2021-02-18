@@ -45,7 +45,6 @@ export default {
       return this.$store.state.selectedUsers || [];
     },
     isLastPage() {
-      console.log('ceil: ', Math.ceil(this.selectedUsers.length / this.pageSize))
       return this.page >= Math.ceil(this.selectedUsers.length / this.pageSize);
     }
   },
