@@ -63,10 +63,10 @@
               const index = this.findUserIndex(this.user.id);
               if (index > -1) {
                 this.details.selected = false;
-                this.$store.commit('unfollowUser', index);
+                this.$store.commit('removeUser', index);
               } else {
                 this.details.selected = true;
-                this.$store.commit('followUser', user);
+                this.$store.commit('addUser', user);
               }
             },
         }

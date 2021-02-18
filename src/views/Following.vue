@@ -3,7 +3,7 @@
     <div id="filters">
     <custom-select :options="['Public Repos', 'Followers']" :default="'Public Repos'" @input="setKey" />
     <custom-select :options="['Ascending', 'Descending']" :default="'Descending'" @input="setOrder" />
-    <custom-select :options="[2, 5, 10]" :default="5" @input="setPageSize" />
+    <custom-select :options="[2, 5, 10]" :default="10" @input="setPageSize" />
     <input class="input-filter" v-model="search" placeholder="Search">
   </div>
   <div id="followers">
@@ -12,7 +12,7 @@
   <div id="pagination-container" v-if="pageSize > 1">
       <button id="previous" class="pagination" :class="page <= 1 ? 'disabled' : ''" :disabled="page <= 1" @click="setPage('prev')">Previous</button>
       <div id="page">{{ page }}</div>
-      <button id="next" class="pagination" :class="page >= parseInt(selectedUsers.length  / pageSize) ? 'disabled' : ''" :disabled="page >= parseInt(selectedUsers.length  / pageSize)" @click="setPage">Next</button>
+      <button id="next" class="pagination" :class="isLastPage ? 'disabled' : ''" :disabled="isLastPage" @click="setPage">Next</button>
   </div>
   </div>
   
@@ -43,6 +43,10 @@ export default {
     },
     selectedUsers() {
       return this.$store.state.selectedUsers || [];
+    },
+    isLastPage() {
+      console.log('ceil: ', Math.ceil(this.selectedUsers.length / this.pageSize))
+      return this.page >= Math.ceil(this.selectedUsers.length / this.pageSize);
     }
   },
   methods: {

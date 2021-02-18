@@ -27,9 +27,8 @@ export default {
       required: true,
     },
     default: {
-      type: String,
       required: false,
-      default: null,
+      default: 10,
     },
     tabindex: {
       type: Number,
