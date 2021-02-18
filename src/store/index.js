@@ -12,7 +12,7 @@ export default createStore({
     },
     removeUser(state, index) {
       state.selectedUsers.splice(index,1);
-    },
+    }
   },
   actions: {},
   modules: {}

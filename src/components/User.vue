@@ -1,9 +1,9 @@
 <template>
-    <div class="user" @click="setRepoUsername(details.login, details.name)" v-if="!isLoading">
-        <div class="following-user" @click.stop="selectUser(details)" v-if="user.selected">&#10084;</div>
+    <div class="user" @click="setRepoUsername(details.login, details.name)">
+        <div class="following-user" @click.stop="selectUser(details)" v-if="details.selected">&#10084;</div>
         <div class="follow" @click.stop="selectUser(details)" v-else>&#9825;</div>
         <div class="avatar">
-            <img :src="user.avatar_url" alt="User Avatar" />
+            <img :src="details.avatar_url" alt="User Avatar" />
         </div>
         <div class="details">
             <div class="name detail-item">{{ details.name }}</div>
@@ -18,11 +18,7 @@
 </template>
 
 <script>
-    
-
     export default {
-        components: {
-        },
         props: {
             user: {
                 type: Object,
@@ -31,64 +27,46 @@
         },
         data() {
             return {
-                details: {},
-                isLoading: false,
-                userIndex: null
+                details: {}
             }
-        },
-        beforeMount() {
-            
-            
         },
         mounted() {
             this.getUser(this.user.url);
-
-            const index = this.findUserIndex(this.user.id);
-            console.log({index, name: this.user.login})
-            if (index > -1) {
-                this.user.selected = true;
-            } else {
-              this.user.selected = false;
-            }
         },
         computed: {
-            selectedUsers() {
-                return this.$store.state.selectedUsers;
-            }
-        },
-        watch: {
-            
         },
         methods: {
             async getUser(url) {
-                this.isLoading = true;
                 try {
-                    const res = await fetch(url);
+                    const res = await fetch(url, {
+                      headers: {
+                        'Authorization': 'Basic ' + Buffer.from("geokiren:8a79539b4d07f8d99644ce53881b5229d3712e83").toString('base64')
+                      },
+                    });
                     const data = await res.json();
+                    data.selected = this.findUserIndex(data.id) > -1;
                     this.details = data || {};
                 } catch(er) {
                     console.log(er)
                 }
-                this.isLoading = false;
             },
             findUserIndex(id) {
-                return this.selectedUsers.findIndex(selectedUser => selectedUser.id === id);
+                return this.$store.state.selectedUsers.findIndex(selectedUser => selectedUser.id === id);
             },
             setRepoUsername(username, name) {
-                this.repoInfo = {
-                    username,
-                    name
-                }
-                this.$emit('user-repos', this.repoInfo);
+                this.$emit('user-repos', {
+                  username,
+                  name
+                });
             },
             selectUser(user) {
               const index = this.findUserIndex(this.user.id);
               if (index > -1) {
-                this.user.selected = false;
-                this.$store.commit('removeUser', index);
+                this.details.selected = false;
+                this.$store.commit('unfollowUser', index);
               } else {
-                this.user.selected = true;
-                this.$store.commit('addUser', user);
+                this.details.selected = true;
+                this.$store.commit('followUser', user);
               }
             },
         }

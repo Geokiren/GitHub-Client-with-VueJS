@@ -147,7 +147,6 @@ export default {
             flex-wrap: wrap;
             align-items: center;
             justify-content: center;
-            height: 108vh;
 
             .repos-list {
 
@@ -194,7 +193,7 @@ export default {
           margin: 2rem 1rem;
           display: flex;
           justify-content: center;
-          position: absolute;
+          position: initial;
           bottom: 0;
           z-index: 100;
 

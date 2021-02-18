@@ -62,7 +62,7 @@ export default {
   outline: none;
   height: 47px;
   line-height: 47px;
-  margin: 0 1rem;
+  margin: 10px;
 }
 
 .custom-select .selected {

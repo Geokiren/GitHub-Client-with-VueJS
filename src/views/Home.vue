@@ -46,10 +46,8 @@ export default {
       return this.$store.state.selectedUsers;
     }
   },
-  created() {
-  },
   mounted() {
-    this.getUsers(1);
+    this.getUsers();
   },
   watch: {
     usersPage(newVal, oldVal) {
@@ -62,7 +60,6 @@ export default {
           document.documentElement.style.overflow = 'hidden';
           return;
       }
-
       document.documentElement.style.overflow = 'auto';
     }
   },
@@ -70,21 +67,24 @@ export default {
     findUserIndex(id) {
         return this.selectedUsers.findIndex(selectedUser => selectedUser.id === id);
     },
-    async getUsers(page) {
-      this.renderObserver = false;
-        // this.isLoading = true;
+    async getUsers(page = 1) {
+        this.renderObserver = false;
+
         try {
-            const res = await fetch(`https://api.github.com/search/users?q=language:javascript+type:user&sort=followers&order=desc&page=${page}&per_page=10`);
-            const { items } = await res.json();
-            this.users.push(...items || []);            
+          const res = await fetch(`https://api.github.com/search/users?q=language:javascript+type:user&sort=followers&order=desc&page=${page}&per_page=10`, {
+            headers: {
+              'Authorization': 'Basic ' + Buffer.from("geokiren:8a79539b4d07f8d99644ce53881b5229d3712e83").toString('base64')
+            },
+          });
+          const { items } = await res.json();
+          if (items && items.length > 0) { this.users.push(...items); }
         } catch(er) {
             console.log(er)
         }
+
         setTimeout(() => {
           this.renderObserver = true;
         }, 300);
-        
-        // this.isLoading = false;
     },
     setRepos(repo) {
       this.repoInfo = repo;
