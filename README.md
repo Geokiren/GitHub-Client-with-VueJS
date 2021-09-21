@@ -1,2 +1,2 @@
-# Frontend-Software-Engineer-Assignment
-Frontend Software Engineer Assignment for Synapsecom
+# GitHub Client with VueJS
+A simple client to browse GitHub users
