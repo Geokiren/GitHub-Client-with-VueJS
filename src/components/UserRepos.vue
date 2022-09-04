@@ -5,7 +5,7 @@
             <h1 id="title">{{ name }}'s Repos</h1>
             
             <div v-if="repos" id="repos-container">
-                <div class="repos-list" v-for="(repo, index) in repos" v-if="!isLoading">
+                <div class="repos-list" v-for="(repo, index) in repos" v-if="areRepos">
                     <h3 class="full-name repo-item">{{ repo.full_name.split('/')[1].toUpperCase() }}</h3>
                     <div class="repo-info">
                         <div class="license repo-item" v-if="repo.license">License: {{ repo.license.name || 'N/A' }}</div>
@@ -44,7 +44,6 @@ export default {
         return {
             repos: [],
             page: 1,
-            isLoading: false
         }
     },
     mounted() {
@@ -57,26 +56,32 @@ export default {
         }
       },
     },
+    computed: {
+        areRepos() {
+            return this.repos.length > 0;
+        }
+    }, 
     methods: {
       close() {
           this.$emit('close-repos');
       },
       async getRepos(username, page) {
-          this.isLoading = true;
+          this.$store.commit('setIsLoading', true);
           try {
               const res = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&type=owner&direction=desc&page=${page}&per_page=10`);
               const data = await res.json();
               this.repos = data || [];
+              this.$store.commit('setIsLoading', false);
           } catch(er) {
               console.log(er)
           }
           this.isLoading = false;
       },
-      todo: function(){
-        this.intervalId = setInterval(function(){
-          // apply code needed
-        }.bind(this), 30000);
-      }
+    //   todo: function(){
+    //     this.intervalId = setInterval(function(){
+    //       // apply code needed
+    //     }.bind(this), 30000);
+    //   }
     }
 }
 </script>

@@ -1,9 +1,8 @@
 <template>
-  <div class="home">
-    <div id="loading-spinner" :class="isLoading ? 'active' : ''"></div>
-    <div id="user-list" v-if="areUsers">
+  <main class="home">
+    <section id="user-list" v-if="areUsers">
         <user v-for="(user, index) in users" :key="user.id" :user="user" @user-repos="setRepos" v-if="!showRepos"></user>
-    </div>
+    </section>
     <user-repos 
         v-if="showRepos"
         :username="repoInfo.username"
@@ -15,7 +14,7 @@
       <div id="page">{{ usersPage }}</div>
       <button id="next" class="pagination" @click="usersPage++">Next</button>
     </div> -->
-  </div>
+  </main>
   <observer v-if="renderObserver && !showRepos" @intersect="intersected" />
 </template>
 
@@ -35,7 +34,6 @@ export default {
       return {
         usersPage: 1,
         users: [],
-        isLoading: false,
         showRepos: false,
         repoInfo: {},
         renderObserver: false
@@ -72,7 +70,7 @@ export default {
     },
     async getUsers(page = 1) {
         this.renderObserver = false;
-        this.isLoading = true;
+        this.setIsLoading(true);
 
         try {
           const res = await fetch(`${process.env.VUE_APP_GITHUB_URL}?q=language:javascript+type:user&sort=followers&order=desc&page=${page}&per_page=10`, {
@@ -81,7 +79,7 @@ export default {
               'Accept': 'application/vnd.github+json'
             },
           });
-          this.isLoading = false;
+          this.setIsLoading(false);
           const { items } = await res.json();
           if (items && items.length > 0) { 
             this.users.push(...items);
@@ -97,6 +95,9 @@ export default {
     },
     intersected() {
       this.usersPage++;
+    },
+    setIsLoading(value = false) {
+      this.$store.commit('setIsLoading', value);
     }
   }
 }
@@ -104,32 +105,6 @@ export default {
 
 <style lang="scss" scoped>
 
-  #loading-spinner {
-    width: 30px;
-    height: 30px;
-    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='100' ry='100' stroke='%2342B983FF' stroke-width='7' stroke-dasharray='50%25%2c 13%25' stroke-dashoffset='86' stroke-linecap='butt'/%3e%3c/svg%3e");
-    position: fixed;
-    top: 10%;
-    border-radius: 50%;
-    display: none;
-    animation: rotate 2s infinite;
-  }
-
-  #loading-spinner.active {
-    display: block;
-  }
-
-  @keyframes rotate {
-    0% {
-      transform: rotateZ(0deg);
-    }
-    50%{
-      transform: rotateZ(360deg);
-    }
-    100% {
-      transform: rotateZ(0deg);
-    }
-  }
   .home {
     padding: 20px;
     display: flex;

@@ -1,5 +1,5 @@
 <template>
-    <div class="user" @click="setRepoUsername(details.login, details.name)">
+    <section class="user" @click="setRepoUsername(details.login, details.name)">
         <div class="following-user" @click.stop="selectUser(details)" v-if="details.selected">&#10084;</div>
         <div class="follow" @click.stop="selectUser(details)" v-else>&#9825;</div>
         <div class="avatar">
@@ -14,7 +14,7 @@
             <div class="followers detail-item">Followers: {{ details.followers }}</div>
             <div class="following detail-item">Following: {{ details.following }}</div>
         </div>
-    </div>
+    </section>
 </template>
 
 <script>

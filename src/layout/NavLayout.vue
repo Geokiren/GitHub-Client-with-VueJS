@@ -1,8 +1,20 @@
 <template>
-  <div id="nav">
+  <header id="nav">
+    <loading-spinner></loading-spinner>
     <router-link to="/">Github Users</router-link> | <router-link to="/following">Following</router-link>
-  </div>
+  </header>
 </template>
+
+<script>
+  import LoadingSpinner from '../components/LoadingSpinner.vue';
+
+export default {
+  name: 'NavLayout',
+  components: {
+    LoadingSpinner
+  },
+}
+</script>
 
 <style lang="scss" scoped>
   #nav {
