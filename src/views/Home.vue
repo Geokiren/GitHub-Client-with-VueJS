@@ -1,6 +1,7 @@
 <template>
   <div class="home">
-    <div id="user-list" v-if="!isLoading">
+    <div id="loading-spinner" :class="isLoading ? 'active' : ''"></div>
+    <div id="user-list" v-if="areUsers">
         <user v-for="(user, index) in users" :key="user.id" :user="user" @user-repos="setRepos" v-if="!showRepos"></user>
     </div>
     <user-repos 
@@ -19,7 +20,6 @@
 </template>
 
 <script>
-import { onMounted } from 'vue';
 import User from "../components/User.vue";
 import UserRepos from '../components/UserRepos.vue';
 import Observer from '../components/Observer.vue';
@@ -44,6 +44,9 @@ export default {
   computed: {
     selectedUsers() {
       return this.$store.state.selectedUsers;
+    },
+    areUsers() {
+      return this.users.length > 0;
     }
   },
   mounted() {
@@ -69,22 +72,24 @@ export default {
     },
     async getUsers(page = 1) {
         this.renderObserver = false;
+        this.isLoading = true;
 
         try {
-          const res = await fetch(`https://api.github.com/search/users?q=language:javascript+type:user&sort=followers&order=desc&page=${page}&per_page=10`, {
+          const res = await fetch(`${process.env.VUE_APP_GITHUB_URL}?q=language:javascript+type:user&sort=followers&order=desc&page=${page}&per_page=10`, {
             headers: {
-              'Authorization': 'Basic ' + Buffer.from("geokiren:8a79539b4d07f8d99644ce53881b5229d3712e83").toString('base64')
+              'Authorization': 'Bearer ' + `${process.env.VUE_APP_GITHUB_KEY}`,
+              'Accept': 'application/vnd.github+json'
             },
           });
+          this.isLoading = false;
           const { items } = await res.json();
-          if (items && items.length > 0) { this.users.push(...items); }
+          if (items && items.length > 0) { 
+            this.users.push(...items);
+            this.renderObserver = true;
+          }
         } catch(er) {
-            console.log(er)
+            console.log(er);
         }
-
-        setTimeout(() => {
-          this.renderObserver = true;
-        }, 300);
     },
     setRepos(repo) {
       this.repoInfo = repo;
@@ -98,6 +103,33 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+
+  #loading-spinner {
+    width: 30px;
+    height: 30px;
+    background-image: url("data:image/svg+xml,%3csvg width='100%25' height='100%25' xmlns='http://www.w3.org/2000/svg'%3e%3crect width='100%25' height='100%25' fill='none' rx='100' ry='100' stroke='%2342B983FF' stroke-width='7' stroke-dasharray='50%25%2c 13%25' stroke-dashoffset='86' stroke-linecap='butt'/%3e%3c/svg%3e");
+    position: fixed;
+    top: 10%;
+    border-radius: 50%;
+    display: none;
+    animation: rotate 2s infinite;
+  }
+
+  #loading-spinner.active {
+    display: block;
+  }
+
+  @keyframes rotate {
+    0% {
+      transform: rotateZ(0deg);
+    }
+    50%{
+      transform: rotateZ(360deg);
+    }
+    100% {
+      transform: rotateZ(0deg);
+    }
+  }
   .home {
     padding: 20px;
     display: flex;

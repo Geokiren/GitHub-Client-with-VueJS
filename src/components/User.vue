@@ -40,7 +40,7 @@
                 try {
                     const res = await fetch(url, {
                       headers: {
-                        'Authorization': 'Basic ' + Buffer.from("geokiren:8a79539b4d07f8d99644ce53881b5229d3712e83").toString('base64')
+                        'Authorization': `Bearer ${process.env.VUE_APP_GITHUB_KEY}`
                       },
                     });
                     const data = await res.json();
